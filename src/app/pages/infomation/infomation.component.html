@@ -1,0 +1,107 @@
+<p-toast ></p-toast>
+<div class="card">
+
+    <p-toolbar styleClass="p-mb-4" *ngIf="role ==1">
+        <ng-template pTemplate="left"  >
+            <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2" (click)="openNew()" ></button>
+            <button pButton pRipple [label]="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length"></button>
+        </ng-template>
+
+        
+    </p-toolbar>
+
+    <p-table #dt [value]="products" [rows]="10" [paginator]="true" [globalFilterFields]="['INFORMATION_TITLE','INFORMATION_DESCRIPTION','INFORMATION_MAP','INFORMATION_TYPE']"
+        [(selection)]="selectedProducts" [rowHover]="true" dataKey="ID_INFORMATION"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
+        <ng-template pTemplate="caption">
+            <div class="p-d-flex p-ai-center p-jc-between">
+                <h5 class="p-m-0">Manage Products</h5>
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem" >
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th pSortableColumn="INFORMATION_TITLE">Information Title <p-sortIcon field="INFORMATION_TITLE"></p-sortIcon></th>
+                <th>Image</th>
+                <th pSortableColumn="INFORMATION_DESCRIPTION">Information Description <p-sortIcon field="INFORMATION_DESCRIPTION"></p-sortIcon></th>
+                <th pSortableColumn="INFORMATION_MAP">Information Map <p-sortIcon field="INFORMATION_MAP"></p-sortIcon></th>
+                <th pSortableColumn="INFORMATION_TYPE">Information type <p-sortIcon field="INFORMATION_TYPE"></p-sortIcon></th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-product>
+            <tr>
+                <td >
+                    <p-tableCheckbox [value]="product"></p-tableCheckbox>
+                </td>
+                <td>{{product.INFORMATION_TITLE}}</td>
+                <td  ><span *ngFor="let col of product.image" ><img [src]="col.INFORMATION_IMAGE" [alt]="col.INFORMATION_IMAGE" width="100" class="p-shadow-4" /></span></td>
+                <td [class]="'rowcustomer'" >{{product.INFORMATION_DESCRIPTION}}</td>
+                <td [class]="'rowcustomer'">{{product.INFORMATION_MAP}}</td>
+                <td><span [class]="'product-badge status-' + product.INFORMATION_TYPE">{{product.INFORMATION_TYPE}}</span></td>
+                <td >
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" (click)="editProduct(product)"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning" (click)="deleteProduct(product)" *ngIf="role ==1"></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div class="p-d-flex p-ai-center p-jc-between">
+                In total there are {{products ? products.length : 0 }} products.
+            </div>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="productDialog" [style]="{width: '750px'}" header="Product Details" [modal]="true" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="p-field">
+            <label for="INFORMATION_TITLE">Information Title</label>
+            <input type="text" pInputText id="INFORMATION_TITLE" [(ngModel)]="product.INFORMATION_TITLE" required autofocus />
+            <small class="p-error" *ngIf="submitted && !product.INFORMATION_TITLE">Information Title is required.</small>
+        </div>
+        <div class="p-field">
+            <label for="INFORMATION_DESCRIPTION">Information Description</label>
+            <textarea id="INFORMATION_DESCRIPTION" pInputTextarea [(ngModel)]="product.INFORMATION_DESCRIPTION" rows="3" cols="20"></textarea>
+        </div>
+        <div class="p-field">
+            <label for="inventoryStatus">Information type</label>
+            <p-dropdown [(ngModel)]="product.INFORMATION_TYPE" inputId="INFORMATION_TYPE" [options]="statuses" placeholder="Select" required autofocus>
+                <ng-template let-option pTemplate="item">
+                    <span [class]="'product-badge status-' + option.value">{{option.label}}</span>
+                </ng-template>
+            </p-dropdown>
+            <small class="p-error" *ngIf="submitted && !product.INFORMATION_TYPE">Information Type is required.</small>
+        </div>
+        <div class="p-field">
+            <label for="INFORMATION_MAP">Information Map</label>&nbsp;&nbsp;&nbsp;<a href="https://www.google.com/search?q={{product.INFORMATION_TITLE}}+gps" target="_blank" style="
+            color: blue;
+        ">Looking for GPS</a>
+            <input type="text" pInputText id="INFORMATION_MAP" [(ngModel)]="product.INFORMATION_MAP" required autofocus />
+            <small class="p-error" *ngIf="submitted && !product.INFORMATION_MAP">Information Map is required.</small>
+        </div>
+        <div class="p-field">
+            <p-fileUpload   (uploadHandler)="onUpload($event)" (onClear)="clear()" customUpload="true" [files]="uploadedFiles" (onRemove)="cancel($event)" [disabled]="role >1"
+            multiple="multiple" accept="image/*">
+            <ng-template pTemplate="content">
+                <!-- <ul *ngIf="uploadedFiles.length">
+                    <li *ngFor="let file of uploadedFiles">{{file.name}} - {{file.size}} bytes</li>
+                </ul> -->
+            </ng-template>
+    </p-fileUpload>
+        </div>
+    </ng-template>
+    
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" [disabled]="uploadedFiles.length ==0 || role >1" (click)="saveProduct()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

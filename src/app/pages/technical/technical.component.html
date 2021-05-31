@@ -1,0 +1,79 @@
+<p-toast ></p-toast>
+<div class="card">
+
+    <p-toolbar styleClass="p-mb-4">
+        <ng-template pTemplate="left"  >
+            <button pButton pRipple label="New" icon="pi pi-plus" class="p-button-success p-mr-2" (click)="openNew()" ></button>
+            <!-- <button pButton pRipple [label]="Delete" icon="pi pi-trash" class="p-button-danger" (click)="deleteSelectedbasicdriver()"  [disabled]="!selectedbasicdrivers || !selectedbasicdrivers.length"></button> -->
+        </ng-template>
+
+        
+    </p-toolbar>
+
+    <p-table #dt [value]="technicals" [rows]="10" [paginator]="true" [globalFilterFields]="['description']"
+        [(selection)]="selectedtechnicals" [rowHover]="true" dataKey="id_technical"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries" [showCurrentPageReport]="true">
+        <ng-template pTemplate="caption">
+            <div class="p-d-flex p-ai-center p-jc-between">
+                <span class="p-input-icon-left">
+                    <i class="pi pi-search"></i>
+                    <input pInputText type="text" (input)="dt.filterGlobal($event.target.value, 'contains')" placeholder="Search..." />
+                </span>
+            </div>
+        </ng-template>
+        <ng-template pTemplate="header">
+            <tr>
+                <th style="width: 3rem" >
+                    <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+                </th>
+                <th pSortableColumn="description">Description <p-sortIcon field="description"></p-sortIcon></th>
+                <th pSortableColumn="image">Image <p-sortIcon field="image"></p-sortIcon></th>
+                <th></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-technicals>
+            <tr>
+                <td >
+                    <p-tableCheckbox [value]="technicals"></p-tableCheckbox>
+                </td>
+                <td [class]="'rowcustomer'" >{{technicals.description}}</td>
+                <td ><span><img [src]="technicals.image" [alt]="technicals.image" width="100" class="p-shadow-4" /></span></td>
+                <td >
+                    <button pButton pRipple icon="pi pi-pencil" class="p-button-rounded p-button-success p-mr-2" (click)="edittechnical(technicals)"></button>
+                    <button pButton pRipple icon="pi pi-trash" class="p-button-rounded p-button-warning"  (click)="deletetechnical(technicals)"></button>
+                </td>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="summary">
+            <div class="p-d-flex p-ai-center p-jc-between">
+                In total there are {{technical ? technical.length : 0 }}.
+            </div>
+        </ng-template>
+    </p-table>
+</div>
+
+<p-dialog [(visible)]="Dialog" [style]="{width: '750px'}" header="Details" [modal]="true" styleClass="p-fluid">
+    <ng-template pTemplate="content">
+        <div class="p-field">
+            <label for="description">Information Description</label>
+            <textarea id="description" pInputTextarea  rows="3" cols="20" [(ngModel)]="technicaldata.description"></textarea>
+        </div>
+        <div class="p-field">
+            <p-fileUpload   (uploadHandler)="onUpload($event)" (onClear)="clear()" customUpload="true" [files]="uploadedFiles" (onRemove)="cancel($event)"
+             accept="image/*">
+            <ng-template pTemplate="content">
+                <!-- <ul *ngIf="uploadedFiles.length">
+                    <li *ngFor="let file of uploadedFiles">{{file.name}} - {{file.size}} bytes</li>
+                </ul> -->
+            </ng-template>
+    </p-fileUpload>
+        </div>
+    </ng-template>
+    
+    <ng-template pTemplate="footer">
+        <button pButton pRipple label="Cancel" icon="pi pi-times" class="p-button-text" (click)="hideDialog()"></button>
+        <button pButton pRipple label="Save" icon="pi pi-check" class="p-button-text" [disabled]="uploadedFiles.length ==0" (click)="savetechnical()"></button>
+    </ng-template>
+</p-dialog>
+
+<p-confirmDialog [style]="{width: '450px'}"></p-confirmDialog>

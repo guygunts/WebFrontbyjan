@@ -1,0 +1,16 @@
+<div class="layout-topbar p-shadow-4">
+    <div class="layout-topbar-left">
+        <a class="layout-topbar-logo" routerLink="/home">
+            <img id="app-logo" src="assets/layout/images/logo-light.svg" alt="ultima-layout" style="height: 2.25rem">
+        </a>
+
+        <a class="layout-menu-button p-shadow-6" (click)="appMain.onMenuButtonClick($event)" pRipple>
+            <i class="pi pi-chevron-right"></i>
+        </a>
+
+        <a class="layout-topbar-mobile-button" (click)="appMain.onTopbarMobileButtonClick($event)" pRipple>
+            <i class="pi pi-ellipsis-v fs-large"></i>
+        </a>
+    </div>
+
+</div>
